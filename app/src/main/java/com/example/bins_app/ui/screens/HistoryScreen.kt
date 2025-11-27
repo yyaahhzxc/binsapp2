@@ -11,12 +11,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.bins_app.ui.components.TransactionListItem
+import com.example.bins_app.ui.components.VinceFAB
 import com.example.bins_app.viewmodel.AppViewModel
 import com.example.bins_app.viewmodel.TransactionFilter
 
@@ -42,15 +42,14 @@ fun HistoryScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { /* Optional: Filter by date */ },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Select Date"
-                )
-            }
+            VinceFAB(
+                mainText = "Filter Date",
+                mainIcon = Icons.Default.FilterList,
+                onMainClick = { /* Filter date logic */ },
+                secondaryText = "Export",
+                secondaryIcon = Icons.Default.Download,
+                onSecondaryClick = { /* Export logic */ }
+            )
         }
     ) { paddingValues ->
         Column(
@@ -152,4 +151,3 @@ fun HistoryScreen(
         }
     }
 }
-

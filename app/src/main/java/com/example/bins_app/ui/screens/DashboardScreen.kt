@@ -1,6 +1,9 @@
 package com.example.bins_app.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,11 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -30,11 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.bins_app.ui.components.DashboardStatsCard
 import com.example.bins_app.ui.components.FriendListItem
+import com.example.bins_app.ui.components.VinceFAB
+import com.example.bins_app.ui.components.VinceExpandableFAB
 import com.example.bins_app.ui.components.VinceInputField
 import com.example.bins_app.util.DateUtils
 import com.example.bins_app.viewmodel.AppViewModel
@@ -54,80 +56,99 @@ fun DashboardScreen(
     var showAddTransactionSheet by remember { mutableStateOf(false) }
     var selectedFriendId by remember { mutableStateOf<Int?>(null) }
     var selectedFriendName by remember { mutableStateOf("") }
+    var fabExpanded by remember { mutableStateOf(false) }
+    var showAddPersonSheet by remember { mutableStateOf(false) }
 
     val sheetState = rememberModalBottomSheetState()
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddTransactionSheet = true },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Transaction"
-                )
-            }
+            VinceExpandableFAB(
+                expanded = fabExpanded,
+                onToggle = { fabExpanded = it },
+                onPersonClick = {
+                    fabExpanded = false
+                    showAddPersonSheet = true
+                },
+                onPaymentClick = {
+                    fabExpanded = false
+                    showAddTransactionSheet = true
+                }
+            )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Today's collection stats
-            item {
-                DashboardStatsCard(
-                    title = "Total Collected Today",
-                    amount = uiState.collectedToday,
-                    subtitle = DateUtils.formatFullDate(System.currentTimeMillis())
-                )
-            }
-
-            // This week's stats
-            item {
-                DashboardStatsCard(
-                    title = "Total Collected This Week",
-                    amount = uiState.collectedThisWeek,
-                    subtitle = "Monday - ${DateUtils.formatDate(System.currentTimeMillis())}"
-                )
-            }
-
-            // Unpaid today header
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Unpaid Today",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-
-            // Unpaid friends list
-            if (uiState.unpaidFriendsToday.isEmpty()) {
+        Box(modifier = modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
+            // Content
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Today's collection stats
                 item {
+                    DashboardStatsCard(
+                        title = "Total Collected Today",
+                        amount = uiState.collectedToday,
+                        subtitle = DateUtils.formatFullDate(System.currentTimeMillis())
+                    )
+                }
+
+                // This week's stats
+                item {
+                    DashboardStatsCard(
+                        title = "Total Collected This Week",
+                        amount = uiState.collectedThisWeek,
+                        subtitle = "Monday - ${DateUtils.formatDate(System.currentTimeMillis())}"
+                    )
+                }
+
+                // Unpaid today header
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "All friends have paid today! 🎉",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
+                        text = "Unpaid Today",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
-            } else {
-                items(uiState.unpaidFriendsToday, key = { it.id }) { friend ->
-                    FriendListItem(
-                        friend = friend,
-                        onClick = {
-                            selectedFriendId = friend.id
-                            selectedFriendName = friend.name
-                            showAddTransactionSheet = true
-                        }
-                    )
+
+                // Unpaid friends list
+                if (uiState.unpaidFriendsToday.isEmpty()) {
+                    item {
+                        Text(
+                            text = "All friends have paid today! 🎉",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                } else {
+                    items(uiState.unpaidFriendsToday, key = { it.id }) { friend ->
+                        FriendListItem(
+                            friend = friend,
+                            onClick = {
+                                selectedFriendId = friend.id
+                                selectedFriendName = friend.name
+                                showAddTransactionSheet = true
+                            }
+                        )
+                    }
                 }
+            }
+
+            // Scrim: darken screen when FAB expanded (but FAB drawn above Scaffold's content)
+            if (fabExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0x99000000))
+                        .clickable { fabExpanded = false }
+                ) {}
             }
         }
     }
@@ -153,6 +174,25 @@ fun DashboardScreen(
                         showAddTransactionSheet = false
                         selectedFriendId = null
                         selectedFriendName = ""
+                    }
+                }
+            )
+        }
+    }
+
+    // Add Person Bottom Sheet
+    if (showAddPersonSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showAddPersonSheet = false },
+            sheetState = sheetState
+        ) {
+            // reuse AddPersonSheet composable defined in PeopleScreen.kt
+            AddPersonSheet(
+                viewModel = viewModel,
+                onDismiss = {
+                    scope.launch {
+                        sheetState.hide()
+                        showAddPersonSheet = false
                     }
                 }
             )
@@ -244,8 +284,7 @@ fun AddTransactionSheet(
                         } else {
                             // Create new friend first, then add transaction
                             viewModel.addFriend(personName, 0.0)
-                            // Note: In production, we'd need to wait for the friend ID
-                            // For now, we'll just add the friend
+                            // Note: In production, we'd need to wait for the friend ID and then add the transaction.
                         }
 
                         onDismiss()
@@ -259,4 +298,3 @@ fun AddTransactionSheet(
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
-

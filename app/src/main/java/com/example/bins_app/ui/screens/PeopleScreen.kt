@@ -11,13 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,13 +35,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import com.example.bins_app.ui.components.FriendListItem
+import com.example.bins_app.ui.components.VinceFAB
 import com.example.bins_app.ui.components.VinceInputField
 import com.example.bins_app.ui.theme.PillShape
 import com.example.bins_app.viewmodel.AppViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,15 +58,11 @@ fun PeopleScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddPersonSheet = true },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Person"
-                )
-            }
+            VinceFAB(
+                mainText = "Add Person",
+                mainIcon = Icons.Default.Add,
+                onMainClick = { showAddPersonSheet = true }
+            )
         }
     ) { paddingValues ->
         Column(
@@ -235,4 +229,3 @@ fun AddPersonSheet(
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
-
